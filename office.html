@@ -153,29 +153,81 @@ h1, h3 {
    <div style="margin-right:30px;font-size: 22px;margin-top: -3px;">Carbon Footprint</div>
         </ul>
       </div>
+
+      <form id="carbonForm">
           <div class="form-group">
-            <label for="electricityConsumption">Electricity Consumption (kWh):</label>
-            <input type="number" id="electricityConsumption" placeholder="Enter electricity consumption" required style=" background-color: #21252930;font-size: large;">
-        </div>
+
+            <label for="electricityUsage">1. Total Monthly Electricity Usage (kWh):</label>
+            <input type="number" id="electricityUsage" required style=" background-color: #21252930;font-size: large;">
+       </div>
         <div class="form-group">
-          <label for="naturalGasConsumption">Natural Gas Consumption (therms):</label>
-          <input type="number" id="naturalGasConsumption" placeholder="Enter natural gas consumption" required style=" background-color: #21252930;font-size: large;">
-        </div>
-        <label for="employeeCommuteEmissions">Employee Commute Emissions (kgCO2 per employee):</label>
-        <input type="number" id="employeeCommuteEmissions" placeholder="Enter commute emissions per employee" required style=" background-color: #21252930;font-size: large;">
-          <div class="form-group">
-            <label for="wasteGeneration">Waste Generation (kgCO2 per ton of waste):</label>
-            <input type="number" id="wasteGeneration" placeholder="Enter emissions per ton of waste" required style=" background-color: #21252930;font-size: large;">
+
+          <label for="electricitySource">2. Heating Source (Electric or Gas):</label>
+          <select id="electricitySource" required style=" background-color: #21252930;font-size: large;">
+              <option value="electric">Electric</option>
+              <option value="gas">Gas</option>
+          </select>
       </div>
+      <label for="heatingFuel">3. Heating Fuel Consumption (gallons or liters):</label>
+            <input type="number" id="heatingFuel" required  style=" background-color: #21252930;font-size: large;">  
+      
       <div class="form-group">
-        <label for="numberEmployees">Number of Employees:</label>
-        <input type="number" id="numberEmployees" placeholder="Enter the number of employees" required style=" background-color: #21252930;font-size: large;">
+        <label for="numRefrigerators">4. Number of Refrigerators:</label>
+        <input type="number" id="numRefrigerators" required style=" background-color: #21252930;font-size: large;">
+            </div>
+      <div class="form-group">
+        <label for="ventilationUsage">5. Ventilation System Energy Consumption:</label>
+            <input type="number" id="ventilationUsage" required style=" background-color: #21252930;font-size: large;">
 
           </div>
-          
-          <button class="btn btn-primary" onclick="calculateCO2Emissions()">Calculate CO2 Emissions</button>
+          <div class="form-group">
 
-  <div id="result" style="text-align: center; margin-top: 20px; font-weight: bold;"></div>
+            <label for="waterConsumption">6. Monthly Water Consumption (gallons or liters):</label>
+        <input type="number" id="waterConsumption" required style=" background-color: #21252930;font-size: large;">
+
+          </div>
+
+          <div class="form-group">
+            <label for="wasteGeneration">7. Monthly Waste Generation (pounds or kilograms):</label>
+            <input type="number" id="wasteGeneration" required style=" background-color: #21252930;font-size: large;">
+
+          </div>
+          <div class="form-group">
+          <label for="numVehicles">8. Number of Vehicles:</label>
+        <input type="number" id="numVehicles" required style=" background-color: #21252930;font-size: large;">
+          </div>
+          <div class="form-group">
+            <label for="commutingMiles">9. Average Monthly Employee Commuting Miles:</label>
+            <input type="number" id="commutingMiles" required style=" background-color: #21252930;font-size: large;">
+          </div>
+          <div class="form-group">
+          <label for="travelMiles">10. Average Monthly Employee Travel Miles:</label>
+        <input type="number" id="travelMiles" required style=" background-color: #21252930;font-size: large;">
+          </div>
+          <div class="form-group">
+            <label for="propertyMaintenance">11. Monthly Property Maintenance and Management (if applicable) - Lawn care, landscaping, etc. (kWh):</label>
+        <input type="number" id="propertyMaintenance" required style=" background-color: #21252930;font-size: large;">
+     
+          </div>
+
+          <div class="form-group">
+
+            <label for="serverEnergy">12. Monthly Server Energy Consumption (kWh):</label>
+        <input type="number" id="serverEnergy" required style=" background-color: #21252930;font-size: large;">
+          </div>
+
+          <div class="form-group">
+            <label for="purchasedGoods">13. Monthly Purchased Goods and Services (value in local currency):</label>
+        <input type="number" id="purchasedGoods" required style=" background-color: #21252930;font-size: large;">
+          </div>
+
+          <button class="btn btn-primary" type="button" onclick="calculateCarbonEmissions()">Calculate</button>
+          
+        </form>
+  <p id="carbonResult" style="text-align: center; margin-top: 20px; font-weight: bold;"></p>
+
+    <p id="interpretation" style="text-align: center; margin-top: 20px; font-weight: bold;"></p>
+</section>
 
 </div>
               </div>
@@ -299,41 +351,77 @@ h1, h3 {
  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
  <script>
-  function calculateCO2Emissions() {
-    const electricityConsumption = document.getElementById('electricityConsumption').value;
-    const naturalGasConsumption = document.getElementById('naturalGasConsumption').value;
-    const employeeCommuteEmissions = document.getElementById('employeeCommuteEmissions').value;
-    const wasteGeneration = document.getElementById('wasteGeneration').value;
-    const numberEmployees = document.getElementById('numberEmployees').value;
+  // Emissions factors for Egypt (placeholders, replace with accurate values)
+  const electricityEmissionsFactor = 0.7; // kg CO2e per kWh (example)
+  const gasHeatingEmissionsFactor = 2.5; // kg CO2e per gallon of gas (example)
+  const electricHeatingEmissionsFactor = 0.9; // kg CO2e per kWh (example)
+  const refrigerationEmissionsFactor = 0.3; // kg CO2e per refrigerator (example)
+  const ventilationEmissionsFactor = 0.4; // kg CO2e per unit of ventilation energy (example)
+  const waterEmissionsFactor = 0.1; // kg CO2e per gallon or liter (example)
+  const wasteEmissionsFactor = 0.2; // kg CO2e per pound or kilogram (example)
+  const vehicleEmissionsFactor = 0.5; // kg CO2e per vehicle (example)
+  const commutingEmissionsFactor = 0.3; // kg CO2e per commuting mile (example)
+  const travelEmissionsFactor = 0.4; // kg CO2e per travel mile (example)
+  const propertyMaintenanceEmissionsFactor = 0.2; // kg CO2e per kWh (example)
+  const serverEmissionsFactor = 0.5; // kg CO2e per kWh (example)
+  const purchasedGoodsEmissionsFactor = 0.1; // kg CO2e per unit of currency (example)
 
-    // Realistic average emission factors
-    const electricityEmissionFactor = 0.4; // kgCO2 per kWh
-    const naturalGasEmissionFactor = 5.3; // kgCO2 per therm
+  function calculateCarbonEmissions() {
+      const electricityUsage = parseFloat(document.getElementById('electricityUsage').value);
+      const heatingSource = document.getElementById('electricitySource').value;
+      const heatingFuel = parseFloat(document.getElementById('heatingFuel').value);
+      const numRefrigerators = parseFloat(document.getElementById('numRefrigerators').value);
+      const ventilationUsage = parseFloat(document.getElementById('ventilationUsage').value);
+      const waterConsumption = parseFloat(document.getElementById('waterConsumption').value);
+      const wasteGeneration = parseFloat(document.getElementById('wasteGeneration').value);
+      const numVehicles = parseFloat(document.getElementById('numVehicles').value);
+      const commutingMiles = parseFloat(document.getElementById('commutingMiles').value);
+      const travelMiles = parseFloat(document.getElementById('travelMiles').value);
+      const propertyMaintenance = parseFloat(document.getElementById('propertyMaintenance').value);
+      const serverEnergy = parseFloat(document.getElementById('serverEnergy').value);
+      const purchasedGoods = parseFloat(document.getElementById('purchasedGoods').value);
 
-    // Perform the calculations
-    const electricityCO2 = electricityConsumption * electricityEmissionFactor;
-    const naturalGasCO2 = naturalGasConsumption * naturalGasEmissionFactor;
-    const commuteCO2 = employeeCommuteEmissions * numberEmployees;
-    const wasteCO2 = wasteGeneration * 2; // Assuming an average emission factor for waste
+      // Perform calculations
+      const electricityEmissions = electricityUsage * electricityEmissionsFactor;
+      const heatingEmissions = (heatingSource === 'electric') ? (heatingFuel * electricHeatingEmissionsFactor) : (heatingFuel * gasHeatingEmissionsFactor);
+      const refrigerationEmissions = numRefrigerators * refrigerationEmissionsFactor;
+      const ventilationEmissions = ventilationUsage * ventilationEmissionsFactor;
+      const waterEmissions = waterConsumption * waterEmissionsFactor;
+      const wasteEmissions = wasteGeneration * wasteEmissionsFactor;
+      const vehicleEmissions = numVehicles * vehicleEmissionsFactor;
+      const commutingEmissions = commutingMiles * commutingEmissionsFactor;
+      const travelEmissions = travelMiles * travelEmissionsFactor;
+      const propertyMaintenanceEmissions = propertyMaintenance * propertyMaintenanceEmissionsFactor;
+      const serverEmissions = serverEnergy * serverEmissionsFactor;
+      const purchasedGoodsEmissions = purchasedGoods * purchasedGoodsEmissionsFactor;
 
-    // Total CO2 Emissions
-    const totalCO2Emissions = electricityCO2 + naturalGasCO2 + commuteCO2 + wasteCO2;
+      const totalEmissions = electricityEmissions + heatingEmissions + refrigerationEmissions +
+          ventilationEmissions + waterEmissions + wasteEmissions + vehicleEmissions +
+          commutingEmissions + travelEmissions + propertyMaintenanceEmissions +
+          serverEmissions + purchasedGoodsEmissions;
 
-    // Determine emission level
-    let emissionLevel;
-      if (totalCO2Emissions < 500) {
-        emissionLevel = 'Low';
-      } else if (totalCO2Emissions < 1000) {
-        emissionLevel = 'Moderate';
-      } else {
-        emissionLevel = 'High';
-      }
+      // Display result
+ document.getElementById('carbonResult').innerHTML = `Total Carbon Emissions: ${totalEmissions.toFixed(2)} kg CO2e`;
 
-      // Display the result
-      document.getElementById('result').innerHTML = `Total CO2 Emissions: ${totalCO2Emissions.toFixed(2)} kgCO2 (${emissionLevel} Emissions)`;
+// Interpretation
+interpretEmissions(totalEmissions);
+}
 
+function interpretEmissions(totalEmissions) {
+let interpretation = '';
 
-  }
+// Add your own interpretation logic based on your sustainability goals
+if (totalEmissions < 100) {
+    interpretation = 'Low carbon emissions. Your office has a relatively small environmental impact.';
+} else if (totalEmissions >= 100 && totalEmissions <= 300) {
+    interpretation = 'Moderate carbon emissions. Consider implementing additional sustainability measures.';
+} else {
+    interpretation = 'High carbon emissions. There is significant room for improvement in reducing environmental impact.';
+}
+
+// Display interpretation
+document.getElementById('interpretation').innerHTML = interpretation;
+}
 </script>
 
 </body>
